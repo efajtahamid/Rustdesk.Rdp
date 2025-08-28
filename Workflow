@@ -1,0 +1,44 @@
+name: RustDesk Windows Setup
+
+on:
+  workflow_dispatch:
+
+jobs:
+  rustdesk-setup:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyautogui psutil pyperclip
+
+      - name: Download RustDesk & Other Tools
+        run: |
+          curl -L -o rustdesk.exe https://github.com/rustdesk/rustdesk/releases/download/1.2.3-1/rustdesk-1.2.3-1-x86_64.exe
+          curl -L -o chrome_installer.exe https://dl.google.com/chrome/install/latest/chrome_installer.exe
+          curl -L -o firefox_installer.exe https://download.mozilla.org/?product=firefox-latest&os=win64&lang=en-US
+          curl -L -o telegram.exe https://telegram.org/dl/desktop/win64
+          curl -L -o winrar.exe https://www.rarlab.com/rar/winrar-x64-621.exe
+
+      - name: Run Downloads.bat
+        run: |
+          cd ${{ github.workspace }}
+          Downloads.bat
+
+      - name: Run Login.py
+        run: python login.py
+
+      - name: Show RustDesk Info
+        run: python -c "import pyperclip; print('RustDesk ID:', pyperclip.paste())"
+
+      - name: Finish
+        run: echo "Setup Complete. Check logs for RustDesk ID & Password."
